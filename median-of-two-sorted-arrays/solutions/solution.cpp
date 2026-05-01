@@ -22,13 +22,11 @@ public:
         while (i<m) merged.push_back(nums1[i++]);
         while (j<n) merged.push_back(nums2[j++]);
 
-        int total = m+n;
-
-        if (total%2 == 1) {
-            return merged[total/2];
+        if ((m+n)%2 == 1) {
+            return merged[(m+n)/2];
         } 
         else {
-            return (merged[total/2] + merged[total/2 - 1])/2.0;
+            return (merged[(m+n)/2] + merged[(m+n)/2 - 1])/2.0;
         }
     }
 };
