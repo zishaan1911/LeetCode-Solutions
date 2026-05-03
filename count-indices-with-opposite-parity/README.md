@@ -1,0 +1,3 @@
+# Count Indices With Opposite Parity
+
+https://leetcode.com/problems/count-indices-with-opposite-parity/
