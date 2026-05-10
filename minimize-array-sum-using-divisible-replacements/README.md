@@ -1,0 +1,3 @@
+# Minimize Array Sum Using Divisible Replacements
+
+https://leetcode.com/problems/minimize-array-sum-using-divisible-replacements/
