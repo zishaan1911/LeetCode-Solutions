@@ -5,7 +5,7 @@ public:
         double phi = (1 + sqrt5) / 2;
         double psi = (1 - sqrt5) / 2;
         
-        double result = (pow(phi, n + 1) - pow(psi, n + 1)) / sqrt5;
+        double result = (pow(((1 + sqrt5) / 2), n + 1) - pow(((1 - sqrt5) / 2), n + 1)) / sqrt5;
         
         return (int)round(result);
     }
