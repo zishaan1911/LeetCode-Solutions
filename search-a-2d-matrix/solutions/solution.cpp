@@ -1,10 +1,7 @@
 class Solution {
 public:
     bool searchMatrix(vector<vector<int>>& matrix, int target) {
-        int m = matrix.size();
-        int n = matrix[0].size();
-
-        int top = 0, bottom = m - 1;
+        int top = 0, bottom = matrix.size() - 1;
         int row = -1;
         
         while (top <= bottom) {
@@ -18,7 +15,7 @@ public:
         }
         if (row == -1) return false;
 
-        int left = 0, right = n - 1;
+        int left = 0, right = matrix[0].size() - 1;
         while (left <= right) {
             int mid = left + (right - left) / 2;
             if (matrix[row][mid] == target) return true;
