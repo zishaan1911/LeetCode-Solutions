@@ -3,25 +3,24 @@ public:
     void setZeroes(vector<vector<int>>& matrix) {
         int rows = matrix.size();
         int cols = matrix[0].size();
-        
-        vector<bool> rowFlags(rows, false);
-        vector<bool> colFlags(cols, false);
+        bool firstColHasZero = false;
 
         for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+            if (matrix[i][0] == 0) firstColHasZero = true;
+            for (int j = 1; j < cols; j++) {
                 if (matrix[i][j] == 0) {
-                    rowFlags[i] = true;
-                    colFlags[j] = true;
+                    matrix[i][0] = 0;
+                    matrix[0][j] = 0;
                 }
             }
         }
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                if (rowFlags[i] || colFlags[j]) {
+        for (int i = rows - 1; i >= 0; i--) {
+            for (int j = cols - 1; j >= 1; j--) {
+                if (matrix[i][0] == 0 || matrix[0][j] == 0) {
                     matrix[i][j] = 0;
                 }
             }
+            if (firstColHasZero) matrix[i][0] = 0;
         }
     }
 };
