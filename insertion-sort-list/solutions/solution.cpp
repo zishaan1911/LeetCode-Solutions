@@ -11,10 +11,32 @@
 class Solution {
 public:
     ListNode* insertionSortList(ListNode* head) {
-        for(auto cur = head; cur; cur = cur -> next) 
-            for(auto j = head; j != cur; j = j -> next) 
-                if(j -> val > cur -> val) 
-                    swap(j -> val, cur -> val);
-        return head;    
+        if (!head || !head->next) return head;
+
+        ListNode* dummy = new ListNode(0);
+        dummy->next = head;
+        
+        ListNode* lastSorted = head;
+        ListNode* cur = head->next;
+
+        while (cur) {
+            if (lastSorted->val <= cur->val) {
+                lastSorted = lastSorted->next;
+            } else {
+                ListNode* prev = dummy;
+                while (prev->next->val < cur->val) {
+                    prev = prev->next;
+                }
+                
+                lastSorted->next = cur->next;
+                cur->next = prev->next;
+                prev->next = cur;
+            }
+            cur = lastSorted->next;
+        }
+
+        ListNode* sortedHead = dummy->next;
+        delete dummy; 
+        return sortedHead;
     }
 };
