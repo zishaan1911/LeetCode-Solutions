@@ -1,31 +1,54 @@
+#include <vector>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
 class Solution {
 public:
     int maxPoints(vector<vector<int>>& points) {
         int n = points.size();
         if (n <= 2) return n;
 
-        int global_max = 2; // With n > 2, the answer is at least 2
+        int global_max = 0;
+        const double EPSILON = 1e-9; // To handle floating-point precision inaccuracies
 
         for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                int local_count = 2;
-                
-                // Extract line vector constants
-                long long dx1 = points[j][0] - points[i][0];
-                long long dy1 = points[j][1] - points[i][1];
+            vector<double> angles;
+            int duplicate = 1;
 
-                for (int k = j + 1; k < n; k++) {
-                    long long dx2 = points[k][0] - points[i][0];
-                    long long dy2 = points[k][1] - points[i][1];
+            for (int j = 0; j < n; j++) {
+                if (i == j) continue;
 
-                    // Cross product: (dx1 * dy2) - (dy1 * dx2) == 0 means collinear
-                    if (dx1 * dy2 == dy1 * dx2) {
-                        local_count++;
-                    }
+                int dx = points[j][0] - points[i][0];
+                int dy = points[j][1] - points[i][1];
+
+                if (dx == 0 && dy == 0) {
+                    duplicate++;
+                    continue;
                 }
-                global_max = max(global_max, local_count);
+
+                // atan2 returns a value between -PI and +PI
+                angles.push_back(atan2(dy, dx));
             }
+
+            sort(angles.begin(), angles.end());
+
+            // Find the longest consecutive sequence of identical angles
+            int local_max = 0;
+            int current_run = 0;
+            for (size_t k = 0; k < angles.size(); k++) {
+                if (k == 0 || abs(angles[k] - angles[k - 1]) < EPSILON) {
+                    current_run++;
+                } else {
+                    local_max = max(local_max, current_run);
+                    current_run = 1;
+                }
+            }
+            local_max = max(local_max, current_run);
+            global_max = max(global_max, local_max + duplicate);
         }
+
         return global_max;
     }
 };
