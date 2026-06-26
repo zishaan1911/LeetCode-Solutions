@@ -1,52 +1,77 @@
 #include <vector>
-#include <cmath>
+#include <unordered_map>
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 
 class Solution {
+struct PointHash {
+    size_t operator()(const vector<int>& p) const {
+        return ((size_t)p[0] << 32) | (unsigned int)p[1];
+    }
+};
+
 public:
     int maxPoints(vector<vector<int>>& points) {
         int n = points.size();
         if (n <= 2) return n;
 
+        // 1. Compress Input Size by aggregating duplicates
+        unordered_map<vector<int>, int, PointHash> point_counts;
+        for (const auto& p : points) {
+            point_counts[p]++;
+        }
+
+        // If all points are duplicates
+        if (point_counts.size() == 1) return n;
+
+        vector<vector<int>> unique_points;
+        vector<int> counts;
+        for (const auto& [pt, cnt] : point_counts) {
+            unique_points.push_back(pt);
+            counts.push_back(cnt);
+        }
+
+        int m = unique_points.size();
         int global_max = 0;
-        const double EPSILON = 1e-9; // To handle floating-point precision inaccuracies
 
-        for (int i = 0; i < n; i++) {
-            vector<double> angles;
-            int duplicate = 1;
+        // 2. Main Loop
+        for (int i = 0; i < m; i++) {
+            // Pruning: If the remaining potential unique points + current duplicates 
+            // cannot beat global_max, we can stop.
+            int remaining_possible = counts[i];
+            for(int k = i + 1; k < m; k++) remaining_possible += counts[k];
+            if (remaining_possible <= global_max) break;
 
-            for (int j = 0; j < n; j++) {
-                if (i == j) continue;
-
-                int dx = points[j][0] - points[i][0];
-                int dy = points[j][1] - points[i][1];
-
-                if (dx == 0 && dy == 0) {
-                    duplicate++;
-                    continue;
-                }
-
-                // atan2 returns a value between -PI and +PI
-                angles.push_back(atan2(dy, dx));
-            }
-
-            sort(angles.begin(), angles.end());
-
-            // Find the longest consecutive sequence of identical angles
+            // Custom hash map utilizing 64-bit integer keys (No String Overhead)
+            unordered_map<uint64_t, int> slope_counts;
             int local_max = 0;
-            int current_run = 0;
-            for (size_t k = 0; k < angles.size(); k++) {
-                if (k == 0 || abs(angles[k] - angles[k - 1]) < EPSILON) {
-                    current_run++;
-                } else {
-                    local_max = max(local_max, current_run);
-                    current_run = 1;
+
+            for (int j = i + 1; j < m; j++) {
+                int dx = unique_points[j][0] - unique_points[i][0];
+                int dy = unique_points[j][1] - unique_points[i][1];
+
+                int g = std::gcd(dx, dy);
+                dx /= g;
+                dy /= g;
+
+                // Standardize slope orientation
+                if (dx < 0 || (dx == 0 && dy < 0)) {
+                    dx = -dx;
+                    dy = -dy;
                 }
+
+                // Bit-pack dy and dx into a single 64-bit key
+                uint64_t slope_key = ((uint64_t)dy << 32) | (uint32_t)dx;
+                
+                // Add the weight/count of point j
+                slope_counts[slope_key] += counts[j];
+                local_max = max(local_max, slope_counts[slope_key]);
             }
-            local_max = max(local_max, current_run);
-            global_max = max(global_max, local_max + duplicate);
+            
+            // Add the weight of the base point i itself
+            global_max = max(global_max, local_max + counts[i]);
         }
 
         return global_max;
