@@ -16,7 +16,6 @@ public:
         vector<int> max_b(bucket_count, INT_MIN);
         vector<bool> filled(bucket_count, false);
         
-        // Fill buckets
         for (int x : nums) {
             int b_idx = (x - min_val) / bucket_size;
             min_b[b_idx] = min(min_b[b_idx], x);
