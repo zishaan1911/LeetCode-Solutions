@@ -13,38 +13,60 @@ public:
     ListNode* sortList(ListNode* head) {
         if (!head || !head->next) return head;
 
-        vector<int> vals;
-        vals.reserve(50000);
-        
+        int length = 0;
         ListNode* curr = head;
         while (curr) {
-            vals.push_back(curr->val);
+            length++;
             curr = curr->next;
         }
 
-        int n = vals.size();
-        vector<int> temp(n);
+        ListNode dummy(0);
+        dummy.next = head;
 
-        for (int& v : vals) v ^= 0x80000000;
+        for (int step = 1; step < length; step <<= 1) {
+            ListNode* prev = &dummy;
+            curr = dummy.next;
 
-        for (int shift = 0; shift < 32; shift += 16) {
-            int count[65536] = {0};
+            while (curr) {
+                ListNode* left = curr;
+                ListNode* right = split(left, step);
+                
+                curr = split(right, step);
 
-            for (int v : vals) count[(v >> shift) & 0xFFFF]++;
-            for (int i = 1; i < 65536; ++i) count[i] += count[i - 1];
-            for (int i = n - 1; i >= 0; --i) {
-                int digit = (vals[i] >> shift) & 0xFFFF;
-                temp[--count[digit]] = vals[i];
+                prev = merge(left, right, prev);
             }
-            vals = temp;
-        }
-        
-        curr = head;
-        for (int v : vals) {
-            curr->val = v ^ 0x80000000;
-            curr = curr->next;
         }
 
-        return head;
+        return dummy.next;
+    }
+
+private:
+    ListNode* split(ListNode* head, int step) {
+        for (int i = 1; head && i < step; ++i) {
+            head = head->next;
+        }
+        if (!head) return nullptr;
+
+        ListNode* rest = head->next;
+        head->next = nullptr;
+        return rest;
+    }
+    ListNode* merge(ListNode* l1, ListNode* l2, ListNode* prev) {
+        ListNode* curr = prev;
+        while (l1 && l2) {
+            if (l1->val < l2->val) {
+                curr->next = l1;
+                l1 = l1->next;
+            } else {
+                curr->next = l2;
+                l2 = l2->next;
+            }
+            curr = curr->next;
+        }
+        curr->next = l1 ? l1 : l2;
+        while (curr->next) {
+            curr = curr->next;
+        }
+        return curr;
     }
 };
