@@ -1,15 +1,21 @@
 class Solution {
 public:
     vector<int> singleNumber(vector<int>& nums) {
-        unordered_set<int> intMap;
-        for (int i : nums) {
-            if (intMap.find(i) != intMap.end()) intMap.erase(i);
-            else intMap.insert(i);
+        long long xorSum = 0;
+        for (int num : nums) {
+            xorSum ^= num;
         }
-        vector<int> result;
-        for (int i : intMap) {
-            result.push_back(i);
+        
+        long long diffBit = xorSum & (-xorSum);
+        
+        int a = 0, b = 0;
+        for (int num : nums) {
+            if (num & diffBit) {
+                a ^= num;
+            } else {
+                b ^= num;
+            }
         }
-        return result;
+        return {a, b};
     }
 };
