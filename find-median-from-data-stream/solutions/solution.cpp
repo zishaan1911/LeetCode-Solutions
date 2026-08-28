@@ -18,11 +18,12 @@ public:
     
     double findMedian() {
         int n = numArr.size();
-        if (n == 0) return 0;
-        else if (n%2 == 1) return numArr[n/2];
+
+        if (n % 2 == 1) {
+            return numArr[n / 2];
+        }
         else {
-            float f = n;
-            return (numArr[(f-1)/2.0] + numArr[f/2.0])/2.0;
+            return (numArr[n / 2 - 1] + numArr[n / 2]) / 2.0;
         }
     }
 };
